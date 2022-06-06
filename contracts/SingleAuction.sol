@@ -18,9 +18,9 @@ contract SingleAuction is Ownable, ERC721Holder {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 constant public PERCENTS_DIVIDER = 100;
-    uint256 constant public MIN_BID_INCREMENT_PERCENT = 1; // 1%
-	uint256 public swapFee = 2;	
+    uint256 constant public PERCENTS_DIVIDER = 1000;
+    uint256 constant public MIN_BID_INCREMENT_PERCENT = 10; // 1%
+	uint256 public swapFee = 15;	// 1.5%
 	address public feeAddress;    	
     
     // AuctionBid struct to hold bidder and amount
@@ -71,7 +71,7 @@ contract SingleAuction is Ownable, ERC721Holder {
         feeAddress = _feeAddress;		
     }
     function setFeePercent(uint256 _swapFee) external onlyOwner {		
-		require(_swapFee < 100 , "invalid percent");
+		require(_swapFee < 1000 , "invalid percent");
         swapFee = _swapFee;
     }
 
