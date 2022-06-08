@@ -1738,6 +1738,10 @@ pragma solidity ^0.8.0;
 ////import "@openzeppelin/contracts/access/AccessControl.sol";
 ////import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
+interface INFTFactory {
+	function getMintFee() external view returns (uint256);	
+}
+
 contract MultipleNFT is ERC1155, AccessControl {
     using SafeMath for uint256;
 
@@ -1859,14 +1863,23 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		Create Card - Only Minters
 	 */
-    function addItem( uint256 supply, string memory _uri ) public returns (uint256) {
+    function addItem( uint256 supply, string memory _uri ) public payable returns (uint256) {
+        uint256 mintFee = INFTFactory(factory).getMintFee();
+        require(msg.value >= mintFee, "insufficient fee");
+        if (mintFee > 0) {
+            payable(factory).transfer(mintFee);
+        }
+        
+
         require( hasRole(MINTER_ROLE, msg.sender) || isPublic,
             "Only minter can add item"
         );
         require(supply > 0, "supply can not be 0");
+
         
         currentID = currentID.add(1);
         if (supply > 0) {
+            
             _mint(msg.sender, currentID, supply, "Mint");
         }
 
@@ -1909,5 +1922,12 @@ contract MultipleNFT is ERC1155, AccessControl {
         );
         _;
     }
+
+    function withdrawBNB() public {
+        require(factory == _msgSender(), "caller is not the owner");        
+		uint balance = address(this).balance;
+		require(balance > 0, "insufficient balance");
+		payable(msg.sender).transfer(balance);
+	}
 }
 

@@ -1326,6 +1326,10 @@ pragma solidity ^0.8.0;
 ////import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 ////import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
+interface INFTFactory {
+	function getMintFee() external view returns (uint256);	
+}
+
 contract SingleNFT is ERC721 {
     using SafeMath for uint256;    
 
@@ -1396,7 +1400,13 @@ contract SingleNFT is ERC721 {
     /**
 		Change & Get Item Information
 	 */
-    function addItem(string memory _tokenURI) public returns (uint256){
+    function addItem(string memory _tokenURI) public payable returns (uint256){
+        uint256 mintFee = INFTFactory(factory).getMintFee();
+        require(msg.value >= mintFee, "insufficient fee");	
+        if (mintFee > 0) {
+            payable(factory).transfer(mintFee);
+        }
+
         currentID = currentID.add(1);        
         _safeMint(msg.sender, currentID);
         Items[currentID] = Item(currentID, msg.sender, _tokenURI);
@@ -1450,5 +1460,12 @@ contract SingleNFT is ERC721 {
         );
         _;
     }
+
+    function withdrawBNB() public {
+        require(factory == _msgSender(), "caller is not the owner");        
+		uint balance = address(this).balance;
+		require(balance > 0, "insufficient balance");
+		payable(msg.sender).transfer(balance);
+	}
 }
 

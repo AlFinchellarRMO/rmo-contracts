@@ -16,19 +16,39 @@ contract NFTFactory is Ownable {
     using SafeMath for uint256;
 
     address[] public collections;
+	uint256 private creatingFee;
+	uint256 private mintFee;	
 	
 	/** Events */
     event MultiCollectionCreated(address collection_address, address owner, string name, string uri, bool isPublic);
     event SingleCollectionCreated(address collection_address, address owner, string name, string uri, bool isPublic);
     
 	constructor () {		
-				
+		creatingFee = 0 ether;	
+		mintFee = 0 ether;		
 	}	
 
-	function createMultipleCollection(string memory _name, string memory _uri, bool bPublic) public returns(address collection) {
+	function getCreatingFee() external view returns (uint256) {
+        return creatingFee;
+    }
+	function getMintFee() external view returns (uint256) {
+        return mintFee;
+    }
+
+	function setCreatingFee(uint256 _creatingFee) public onlyOwner {
+		creatingFee = _creatingFee;
+    }
+
+	function setMintFee(uint256 _mintFee) public onlyOwner {
+       	mintFee = _mintFee;
+    }
+
+	function createMultipleCollection(string memory _name, string memory _uri, bool bPublic) public payable returns(address collection) {
 		if(bPublic){
 			require(owner() == msg.sender, "Only owner can create public collection");	
 		}
+		require(msg.value >= creatingFee, "insufficient fee");		
+
 		bytes memory bytecode = type(MultipleNFT).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_uri, _name, block.timestamp));
         assembly {
@@ -39,10 +59,12 @@ contract NFTFactory is Ownable {
 		emit MultiCollectionCreated(collection, msg.sender, _name, _uri, bPublic);
 	}
 
-	function createSingleCollection(string memory _name, string memory _uri, bool bPublic) public returns(address collection) {
+	function createSingleCollection(string memory _name, string memory _uri, bool bPublic) public payable returns(address collection) {
 		if(bPublic){
 			require(owner() == msg.sender, "Only owner can create public collection");	
 		}
+		require(msg.value >= creatingFee, "insufficient fee");		
+
 		bytes memory bytecode = type(SingleNFT).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_uri, _name, block.timestamp));
         assembly {
@@ -52,5 +74,11 @@ contract NFTFactory is Ownable {
 		collections.push(collection);
 		
 		emit SingleCollectionCreated(collection, msg.sender, _name, _uri, bPublic);
+	}
+
+	function withdrawBNB() public onlyOwner {
+		uint balance = address(this).balance;
+		require(balance > 0, "insufficient balance");
+		payable(msg.sender).transfer(balance);
 	}
 }
