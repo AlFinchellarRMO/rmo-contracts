@@ -62,15 +62,15 @@ contract SingleNFT is ERC721 {
     /**
 		Change Collection Information
 	 */
-    function setCollectionURI(string memory newURI) public onlyOwner {
+    function setCollectionURI(string memory newURI) external onlyOwner {
         collection_uri = newURI;
         emit CollectionUriUpdated(newURI);
     }
-    function contractURI() public view returns (string memory) {
+    function contractURI() external view returns (string memory) {
         return collection_uri;
     }
 
-    function setName(string memory newname) public onlyOwner {
+    function setName(string memory newname) external onlyOwner {
         collection_name = newname;
         emit CollectionNameUpdated(newname);
     }
@@ -79,7 +79,7 @@ contract SingleNFT is ERC721 {
     /**
 		Change & Get Item Information
 	 */
-    function addItem(string memory _tokenURI) public payable returns (uint256){
+    function addItem(string memory _tokenURI) external payable returns (uint256){
         uint256 mintFee = INFTFactory(factory).getMintFee();
         require(msg.value >= mintFee, "insufficient fee");	
         if (mintFee > 0) {
@@ -102,7 +102,7 @@ contract SingleNFT is ERC721 {
     }
 
     function setTokenURI(uint256 _tokenId, string memory _newURI)
-        public
+        external
         creatorOnly(_tokenId)
     {
         Items[_tokenId].uri = _newURI;
@@ -115,15 +115,9 @@ contract SingleNFT is ERC721 {
     }   
 
 
-    function transferOwner(address _newOwner) public onlyOwner {
+    function transferOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;        
     } 
-
-    function creatorOf(uint256 _tokenId) public view returns (address) {
-        return Items[_tokenId].creator;
-    }
-
-
 
     modifier onlyOwner() {
         require(owner == _msgSender(), "caller is not the owner");
@@ -139,11 +133,4 @@ contract SingleNFT is ERC721 {
         );
         _;
     }
-
-    function withdrawBNB() public {
-        require(factory == _msgSender(), "caller is not the owner");        
-		uint balance = address(this).balance;
-		require(balance > 0, "insufficient balance");
-		payable(msg.sender).transfer(balance);
-	}
 }

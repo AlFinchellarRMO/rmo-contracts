@@ -2472,15 +2472,15 @@ contract SingleNFT is ERC721 {
     /**
 		Change Collection Information
 	 */
-    function setCollectionURI(string memory newURI) public onlyOwner {
+    function setCollectionURI(string memory newURI) external onlyOwner {
         collection_uri = newURI;
         emit CollectionUriUpdated(newURI);
     }
-    function contractURI() public view returns (string memory) {
+    function contractURI() external view returns (string memory) {
         return collection_uri;
     }
 
-    function setName(string memory newname) public onlyOwner {
+    function setName(string memory newname) external onlyOwner {
         collection_name = newname;
         emit CollectionNameUpdated(newname);
     }
@@ -2489,7 +2489,7 @@ contract SingleNFT is ERC721 {
     /**
 		Change & Get Item Information
 	 */
-    function addItem(string memory _tokenURI) public payable returns (uint256){
+    function addItem(string memory _tokenURI) external payable returns (uint256){
         uint256 mintFee = INFTFactory(factory).getMintFee();
         require(msg.value >= mintFee, "insufficient fee");	
         if (mintFee > 0) {
@@ -2512,7 +2512,7 @@ contract SingleNFT is ERC721 {
     }
 
     function setTokenURI(uint256 _tokenId, string memory _newURI)
-        public
+        external
         creatorOnly(_tokenId)
     {
         Items[_tokenId].uri = _newURI;
@@ -2525,15 +2525,9 @@ contract SingleNFT is ERC721 {
     }   
 
 
-    function transferOwner(address _newOwner) public onlyOwner {
+    function transferOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;        
     } 
-
-    function creatorOf(uint256 _tokenId) public view returns (address) {
-        return Items[_tokenId].creator;
-    }
-
-
 
     modifier onlyOwner() {
         require(owner == _msgSender(), "caller is not the owner");
@@ -2549,13 +2543,6 @@ contract SingleNFT is ERC721 {
         );
         _;
     }
-
-    function withdrawBNB() public {
-        require(factory == _msgSender(), "caller is not the owner");        
-		uint balance = address(this).balance;
-		require(balance > 0, "insufficient balance");
-		payable(msg.sender).transfer(balance);
-	}
 }
 
 
@@ -2572,10 +2559,6 @@ pragma solidity ^0.8.0;
 ////import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 ////import "@openzeppelin/contracts/access/AccessControl.sol";
 ////import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
-interface INFTFactory {
-	function getMintFee() external view returns (uint256);	
-}
 
 contract MultipleNFT is ERC1155, AccessControl {
     using SafeMath for uint256;
@@ -2634,11 +2617,11 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		GET/SET Collection URI
 	 */
-    function contractURI() public view returns (string memory) {
+    function contractURI() external view returns (string memory) {
         return super.uri(0);
     }
 
-    function setURI(string memory newuri) public onlyOwner {
+    function setURI(string memory newuri) external onlyOwner {
         _setURI(newuri);
         emit CollectionUriUpdated(newuri);        
     }
@@ -2647,14 +2630,14 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		Transfer owner
 	 */
-    function transferOwner(address _newOwner) public onlyOwner {
+    function transferOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;        
     }
 
     /**
 		Change Collection Name
 	 */
-    function setName(string memory newname) public onlyOwner {
+    function setName(string memory newname) external onlyOwner {
         name = newname;
         emit CollectionNameUpdated(newname);
     }
@@ -2676,7 +2659,7 @@ contract MultipleNFT is ERC1155, AccessControl {
     }
 
     function setCustomURI(uint256 _tokenId, string memory _newURI)
-        public
+        external
         creatorOnly(_tokenId)
     {
         Items[_tokenId].uri = _newURI;       
@@ -2689,7 +2672,7 @@ contract MultipleNFT is ERC1155, AccessControl {
      * @param _id uint256 ID of the token to query
      * @return amount of token in existence
      */
-    function totalSupply(uint256 _id) public view returns (uint256) {
+    function totalSupply(uint256 _id) external view returns (uint256) {
         require(_exists(_id), "ERC1155Tradable#uri: NONEXISTENT_TOKEN");
         return Items[_id].supply;        
     }
@@ -2698,7 +2681,7 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		Create Card - Only Minters
 	 */
-    function addItem( uint256 supply, string memory _uri ) public payable returns (uint256) {
+    function addItem( uint256 supply, string memory _uri ) external payable returns (uint256) {
         uint256 mintFee = INFTFactory(factory).getMintFee();
         require(msg.value >= mintFee, "insufficient fee");
         if (mintFee > 0) {
@@ -2724,7 +2707,7 @@ contract MultipleNFT is ERC1155, AccessControl {
     }
 
 
-    function burn(address from, uint256 id, uint256 amount) public returns(bool){
+    function burn(address from, uint256 id, uint256 amount) external returns(bool){
 		uint256 nft_token_balance = balanceOf(msg.sender, id);
 		require(nft_token_balance > 0, "Only owner can burn");
         require(nft_token_balance >= amount, "invalid amount : amount have to be smaller than the balance");		
@@ -2732,11 +2715,6 @@ contract MultipleNFT is ERC1155, AccessControl {
         Items[id].supply = Items[id].supply - amount;
 		return true;
 	}
-
-    function creatorOf(uint256 id) public view returns (address) {
-        return Items[id].creator;
-    }
-    
 
     modifier onlyOwner() {
         require(owner == _msgSender(), "caller is not the owner");
@@ -2757,13 +2735,6 @@ contract MultipleNFT is ERC1155, AccessControl {
         );
         _;
     }
-
-    function withdrawBNB() public {
-        require(factory == _msgSender(), "caller is not the owner");        
-		uint balance = address(this).balance;
-		require(balance > 0, "insufficient balance");
-		payable(msg.sender).transfer(balance);
-	}
 }
 
 
@@ -2873,7 +2844,6 @@ contract NFTFactory is Ownable {
     using SafeMath for uint256;
 
     address[] public collections;
-	uint256 private creatingFee;
 	uint256 private mintFee;	
 	
 	/** Events */
@@ -2881,31 +2851,21 @@ contract NFTFactory is Ownable {
     event SingleCollectionCreated(address collection_address, address owner, string name, string uri, bool isPublic);
     
 	constructor () {		
-		creatingFee = 0 ether;	
 		mintFee = 0 ether;		
 	}	
 
-	function getCreatingFee() external view returns (uint256) {
-        return creatingFee;
-    }
 	function getMintFee() external view returns (uint256) {
         return mintFee;
     }
 
-	function setCreatingFee(uint256 _creatingFee) public onlyOwner {
-		creatingFee = _creatingFee;
-    }
-
-	function setMintFee(uint256 _mintFee) public onlyOwner {
+	function setMintFee(uint256 _mintFee) external onlyOwner {
        	mintFee = _mintFee;
     }
 
-	function createMultipleCollection(string memory _name, string memory _uri, bool bPublic) public payable returns(address collection) {
+	function createMultipleCollection(string memory _name, string memory _uri, bool bPublic) external returns(address collection) {
 		if(bPublic){
 			require(owner() == msg.sender, "Only owner can create public collection");	
-		}
-		require(msg.value >= creatingFee, "insufficient fee");		
-
+		}		
 		bytes memory bytecode = type(MultipleNFT).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_uri, _name, block.timestamp));
         assembly {
@@ -2916,12 +2876,10 @@ contract NFTFactory is Ownable {
 		emit MultiCollectionCreated(collection, msg.sender, _name, _uri, bPublic);
 	}
 
-	function createSingleCollection(string memory _name, string memory _uri, bool bPublic) public payable returns(address collection) {
+	function createSingleCollection(string memory _name, string memory _uri, bool bPublic) external returns(address collection) {
 		if(bPublic){
 			require(owner() == msg.sender, "Only owner can create public collection");	
-		}
-		require(msg.value >= creatingFee, "insufficient fee");		
-
+		}		
 		bytes memory bytecode = type(SingleNFT).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_uri, _name, block.timestamp));
         assembly {
@@ -2933,7 +2891,7 @@ contract NFTFactory is Ownable {
 		emit SingleCollectionCreated(collection, msg.sender, _name, _uri, bPublic);
 	}
 
-	function withdrawBNB() public onlyOwner {
+	function withdrawBNB() external onlyOwner {
 		uint balance = address(this).balance;
 		require(balance > 0, "insufficient balance");
 		payable(msg.sender).transfer(balance);

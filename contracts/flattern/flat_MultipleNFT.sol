@@ -1799,11 +1799,11 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		GET/SET Collection URI
 	 */
-    function contractURI() public view returns (string memory) {
+    function contractURI() external view returns (string memory) {
         return super.uri(0);
     }
 
-    function setURI(string memory newuri) public onlyOwner {
+    function setURI(string memory newuri) external onlyOwner {
         _setURI(newuri);
         emit CollectionUriUpdated(newuri);        
     }
@@ -1812,14 +1812,14 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		Transfer owner
 	 */
-    function transferOwner(address _newOwner) public onlyOwner {
+    function transferOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;        
     }
 
     /**
 		Change Collection Name
 	 */
-    function setName(string memory newname) public onlyOwner {
+    function setName(string memory newname) external onlyOwner {
         name = newname;
         emit CollectionNameUpdated(newname);
     }
@@ -1841,7 +1841,7 @@ contract MultipleNFT is ERC1155, AccessControl {
     }
 
     function setCustomURI(uint256 _tokenId, string memory _newURI)
-        public
+        external
         creatorOnly(_tokenId)
     {
         Items[_tokenId].uri = _newURI;       
@@ -1854,7 +1854,7 @@ contract MultipleNFT is ERC1155, AccessControl {
      * @param _id uint256 ID of the token to query
      * @return amount of token in existence
      */
-    function totalSupply(uint256 _id) public view returns (uint256) {
+    function totalSupply(uint256 _id) external view returns (uint256) {
         require(_exists(_id), "ERC1155Tradable#uri: NONEXISTENT_TOKEN");
         return Items[_id].supply;        
     }
@@ -1863,7 +1863,7 @@ contract MultipleNFT is ERC1155, AccessControl {
     /**
 		Create Card - Only Minters
 	 */
-    function addItem( uint256 supply, string memory _uri ) public payable returns (uint256) {
+    function addItem( uint256 supply, string memory _uri ) external payable returns (uint256) {
         uint256 mintFee = INFTFactory(factory).getMintFee();
         require(msg.value >= mintFee, "insufficient fee");
         if (mintFee > 0) {
@@ -1889,7 +1889,7 @@ contract MultipleNFT is ERC1155, AccessControl {
     }
 
 
-    function burn(address from, uint256 id, uint256 amount) public returns(bool){
+    function burn(address from, uint256 id, uint256 amount) external returns(bool){
 		uint256 nft_token_balance = balanceOf(msg.sender, id);
 		require(nft_token_balance > 0, "Only owner can burn");
         require(nft_token_balance >= amount, "invalid amount : amount have to be smaller than the balance");		
@@ -1897,11 +1897,6 @@ contract MultipleNFT is ERC1155, AccessControl {
         Items[id].supply = Items[id].supply - amount;
 		return true;
 	}
-
-    function creatorOf(uint256 id) public view returns (address) {
-        return Items[id].creator;
-    }
-    
 
     modifier onlyOwner() {
         require(owner == _msgSender(), "caller is not the owner");
@@ -1922,12 +1917,5 @@ contract MultipleNFT is ERC1155, AccessControl {
         );
         _;
     }
-
-    function withdrawBNB() public {
-        require(factory == _msgSender(), "caller is not the owner");        
-		uint balance = address(this).balance;
-		require(balance > 0, "insufficient balance");
-		payable(msg.sender).transfer(balance);
-	}
 }
 
