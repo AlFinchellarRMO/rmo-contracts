@@ -2560,6 +2560,10 @@ pragma solidity ^0.8.0;
 ////import "@openzeppelin/contracts/access/AccessControl.sol";
 ////import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
+interface INFTFactory {
+	function getMintFee() external view returns (uint256);	
+}
+
 contract MultipleNFT is ERC1155, AccessControl {
     using SafeMath for uint256;
 
