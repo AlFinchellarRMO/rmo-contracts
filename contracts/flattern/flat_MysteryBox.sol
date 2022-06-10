@@ -1519,6 +1519,7 @@ contract MysteryBox is ERC1155Holder, ERC721Holder {
             amountSum = amountSum.add(_cards[cardKeyWithIndex(i)].amount);
             if (amountSum > randomNumber){
                 resultKey = cardKeyWithIndex(i);
+                break;
             }
         }    
         return resultKey;
