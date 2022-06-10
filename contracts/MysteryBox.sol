@@ -260,11 +260,13 @@ contract MysteryBox is ERC1155Holder, ERC721Holder {
         uint256 randomNumber =  uint256(keccak256(abi.encode(block.timestamp, block.difficulty, block.number))).mod(cardAmount);
         uint256 amountSum = 0;
         bytes32 resultKey = cardKeyWithIndex(0);
-        for(uint i = 0; i < cardKeyCount(); i++) {
+        bool getStatus = true;
+        uint256 cardKeyCountNum = cardKeyCount();
+        for(uint i = 0; i < cardKeyCountNum; i++) {
             amountSum = amountSum.add(_cards[cardKeyWithIndex(i)].amount);
-            if (amountSum > randomNumber){
-                resultKey = cardKeyWithIndex(i);
-                break;
+            if ((amountSum > randomNumber) && getStatus){
+                getStatus = false;
+                resultKey = cardKeyWithIndex(i);                
             }
         }    
         return resultKey;
