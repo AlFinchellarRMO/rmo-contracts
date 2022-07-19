@@ -126,4 +126,9 @@ contract MultipleFixed is Ownable, ERC1155Holder {
         emit MultiItemSwapped(msg.sender, _id, _amount, pairs[_id]);
     }
 
+	/**
+     * @dev To receive ETH
+     */
+    receive() external payable {}
+
 }

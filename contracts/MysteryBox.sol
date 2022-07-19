@@ -289,4 +289,8 @@ contract MysteryBox is ERC1155Holder, ERC721Holder {
 		require(balance > 0, "insufficient balance");
 		payable(msg.sender).transfer(balance);
 	}
+    /**
+     * @dev To receive ETH
+     */
+    receive() external payable {}
 }

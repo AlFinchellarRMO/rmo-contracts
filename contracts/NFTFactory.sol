@@ -68,4 +68,8 @@ contract NFTFactory is Ownable {
 		require(balance > 0, "insufficient balance");
 		payable(msg.sender).transfer(balance);
 	}
+	/**
+     * @dev To receive ETH
+     */
+    receive() external payable {}
 }

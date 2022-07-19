@@ -133,4 +133,9 @@ contract SingleFixed is Ownable, ERC721Holder {
         _;
     }
 
+	/**
+     * @dev To receive ETH
+     */
+    receive() external payable {}
+
 }
