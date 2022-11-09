@@ -33,7 +33,7 @@ contract MysteryBoxFactory is Ownable {
 
 		bytes memory bytecode = type(MysteryBox).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_name, _tokenAddress, block.timestamp));
-        address lootbox;
+        address payable lootbox;
 		assembly {
             lootbox := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
