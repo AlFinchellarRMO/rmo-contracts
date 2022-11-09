@@ -95,9 +95,12 @@ contract SingleFixed is Ownable, ERC721Holder {
             require(msg.value >= totalAmount, "too small amount");
 
 			if(swapFee > 0) {
-				payable(feeAddress).transfer(feeAmount);	
-			}					
-			payable(pair.owner).transfer(ownerAmount);
+				(bool result, ) = payable(feeAddress).call{value: feeAmount}("");
+                require(result, "Failed to send fee to feeAddress");
+				
+			}	
+			(bool result1, ) = payable(pair.owner).call{value: ownerAmount}("");
+            require(result1, "Failed to send coin to pair owner");
 
         } else {
             IERC20 governanceToken = IERC20(pairs[_id].tokenAdr);

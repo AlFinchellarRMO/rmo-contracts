@@ -100,9 +100,11 @@ contract MultipleFixed is Ownable, ERC1155Holder {
             require(msg.value >= tokenAmount, "too small amount");
 
 			if(swapFee > 0) {
-				payable(feeAddress).transfer(feeAmount);			
-			}					
-			payable(item.owner).transfer(ownerAmount);			
+				(bool result, ) = payable(feeAddress).call{value: feeAmount}("");
+        		require(result, "Failed to send fee to feeAddress");
+			}
+			(bool result1, ) = payable(item.owner).call{value: ownerAmount}("");
+        	require(result1, "Failed to send coin to nft owner");
         } else {
             IERC20 governanceToken = IERC20(pairs[_id].tokenAdr);	
 

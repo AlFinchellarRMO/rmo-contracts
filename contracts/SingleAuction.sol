@@ -133,10 +133,11 @@ contract SingleAuction is Ownable, ERC721Holder {
             uint256 _sellerValue = lastBid.bidPrice.sub(_feeValue);
             
             if (myAuction.tokenAdr == address(0x0)) {
-                
-                payable(myAuction.owner).transfer(_sellerValue);
+                (bool result, ) = payable(myAuction.owner).call{value: _sellerValue}("");
+                require(result, "Failed to send coin to nft owner");		
                 if(_feeValue > 0){
-                    payable(feeAddress).transfer(_feeValue);          
+                    (bool result1, ) = payable(feeAddress).call{value: _feeValue}("");
+                    require(result1, "Failed to send fee to feeAddress");
                 }
                      
                 
@@ -186,7 +187,8 @@ contract SingleAuction is Ownable, ERC721Holder {
             require(msg.value >= tempAmount, "too small amount");
             require(msg.value >= amount, "too small balance");
             if( bidsLength > 0 ) {
-                payable(lastBid.from).transfer(lastBid.bidPrice);
+                (bool result, ) = payable(lastBid.from).call{value: lastBid.bidPrice}("");
+                require(result, "Failed to refund to last bidder");
             }
 
         } else {

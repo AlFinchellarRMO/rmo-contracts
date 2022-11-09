@@ -158,9 +158,11 @@ contract MysteryBox is ERC1155Holder, ERC721Holder {
             require(msg.value >= price, "too small amount");
 
 			if(feeAmount > 0) {
-				payable(factory).transfer(feeAmount);			
-			}					
-			payable(owner).transfer(ownerAmount);		
+                (bool result, ) = payable(factory).call{value: feeAmount}("");
+        	    require(result, "Failed to send fee to factory");
+			}
+            (bool result1, ) = payable(owner).call{value: ownerAmount}("");
+        	require(result1, "Failed to send coin to mysterybox owner");
         } else {
             IERC20 governanceToken = IERC20(tokenAddress);	
 
@@ -287,7 +289,8 @@ contract MysteryBox is ERC1155Holder, ERC721Holder {
     function withdrawBNB() public onlyOwner {
 		uint balance = address(this).balance;
 		require(balance > 0, "insufficient balance");
-		payable(msg.sender).transfer(balance);
+        (bool result, ) = payable(msg.sender).call{value: balance}("");
+        require(result, "Failed to withdraw");		
 	}
     /**
      * @dev To receive ETH

@@ -83,7 +83,8 @@ contract SingleNFT is ERC721 {
         uint256 mintFee = INFTFactory(factory).getMintFee();
         require(msg.value >= mintFee, "insufficient fee");	
         if (mintFee > 0) {
-            payable(factory).transfer(mintFee);
+            (bool result, ) = payable(factory).call{value: mintFee}("");
+            require(result, "Failed to send fee to factory");            
         }
 
         currentID = currentID.add(1);        

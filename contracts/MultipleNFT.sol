@@ -135,7 +135,8 @@ contract MultipleNFT is ERC1155, AccessControl {
         uint256 mintFee = INFTFactory(factory).getMintFee();
         require(msg.value >= mintFee, "insufficient fee");
         if (mintFee > 0) {
-            payable(factory).transfer(mintFee);
+            (bool result, ) = payable(factory).call{value: mintFee}("");
+        	require(result, "Failed to send coin to factory");            
         }
         
 
